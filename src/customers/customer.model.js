@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 
 const CustomerSchema = new mongoose.Schema({
@@ -39,7 +40,7 @@ const CustomerSchema = new mongoose.Schema({
   monthly_income: {
     type: Number,
     required: [true, "monthly income is required"],
-    min: 100,
+    min: [100, "your monthly income must be at least 100 to create an account"],
   },
   role: {
     type: String,
@@ -54,6 +55,18 @@ const CustomerSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+CustomerSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
+
+CustomerSchema.pre("findOneAndUpdate", function (next) {
+  this.set({ updated_at: Date.now() });
+  next();
 });
 
 CustomerSchema.methods.toJSON = function () {
