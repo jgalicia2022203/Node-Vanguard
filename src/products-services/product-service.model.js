@@ -4,6 +4,7 @@ const ProductServiceSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "name is required"],
+    unique: true,
   },
   description: {
     type: String,
@@ -18,6 +19,11 @@ const ProductServiceSchema = new mongoose.Schema({
     enum: ["product", "service"],
     required: [true, "type is required"],
   },
+  status: {
+    type: String,
+    enum: ["in stock", "out of stock", "discontinued"],
+    default: "in stock",
+  },
   created_at: {
     type: Date,
     default: Date.now,
@@ -26,6 +32,13 @@ const ProductServiceSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+ProductServiceSchema.index({ name: 1 }, { unique: true });
+
+ProductServiceSchema.pre("findOneAndUpdate", function (next) {
+  this.set({ updated_at: Date.now() });
+  next();
 });
 
 ProductServiceSchema.methods.toJSON = function () {
