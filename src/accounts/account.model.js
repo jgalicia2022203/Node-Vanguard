@@ -15,6 +15,11 @@ const AccountSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  status: {
+    type: String,
+    enum: ["active", "closed", "suspended"],
+    default: "active",
+  },
   created_at: {
     type: Date,
     default: Date.now,
