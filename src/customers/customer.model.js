@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
+import { v4 as uuidv4 } from "uuid";
 
 const CustomerSchema = new mongoose.Schema({
   name: {
@@ -9,6 +10,11 @@ const CustomerSchema = new mongoose.Schema({
   username: {
     type: String,
     required: [true, "username is required"],
+    unique: true,
+  },
+  account_no: {
+    type: String,
+    default: uuidv4,
     unique: true,
   },
   gov_id: {
