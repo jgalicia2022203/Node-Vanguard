@@ -27,6 +27,8 @@ const TransactionSchema = new mongoose.Schema({
   },
 });
 
+TransactionSchema.index({ account_no: 1, date: -1 });
+
 TransactionSchema.methods.toJSON = function () {
   const transaction = this.toObject();
   return transaction;
