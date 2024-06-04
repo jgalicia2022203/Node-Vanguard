@@ -17,8 +17,10 @@ const CustomerSchema = new mongoose.Schema({
     unique: true,
   },
   address: {
-    type: String,
-    required: [true, "address is required"],
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    zip: { type: String, required: true },
   },
   cell_phone: {
     type: String,
