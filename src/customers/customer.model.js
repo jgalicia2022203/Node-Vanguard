@@ -17,10 +17,10 @@ const CustomerSchema = new mongoose.Schema({
     unique: true,
   },
   address: {
-    street: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    zip: { type: String, required: true },
+    street: { type: String, required: [true, "street is required"] },
+    city: { type: String, required: [true, "city is required"] },
+    state: { type: String, required: [true, "state is required"] },
+    zip: { type: String, required: [true, "zip code is required"] },
   },
   cell_phone: {
     type: String,
@@ -58,6 +58,10 @@ const CustomerSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+CustomerSchema.index({ username: 1 }, { unique: true });
+CustomerSchema.index({ email_address: 1 }, { unique: true });
+CustomerSchema.index({ gov_id: 1 }, { unique: true });
 
 CustomerSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
