@@ -19,6 +19,11 @@ const FavoriteSchema = new mongoose.Schema({
   },
 });
 
+FavoriteSchema.index(
+  { account_no: 1, favorite_account_no: 1 },
+  { unique: true }
+);
+
 FavoriteSchema.methods.toJSON = function () {
   const favorite = this.toObject();
   return favorite;
