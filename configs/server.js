@@ -4,8 +4,14 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import accountRoutes from "../src/accounts/account.routes.js";
+import authRoutes from "../src/auth/auth.routes.js";
 import { errorHandler } from "../src/common/middlewares/error-handler.js";
 import apiLimiter from "../src/common/middlewares/request-limiter.js";
+import customerRoutes from "../src/customers/customer.routes.js";
+import favoriteRoutes from "../src/favorites/favorite.routes.js";
+import productRoutes from "../src/products-services/product-service.routes.js";
+import transactionRoutes from "../src/transactions/transaction.routes.js";
 import { dbConnection } from "./mongo.js";
 
 class Server {
@@ -13,7 +19,6 @@ class Server {
     this.app = express();
     this.configHelmet();
     this.port = process.env.PORT;
-    /* Paths go in here */
     this.middlewares();
     this.connectDB();
     this.routes();
@@ -53,6 +58,12 @@ class Server {
   }
 
   routes() {
+    this.app.use("/vanguard/v1/auth", authRoutes);
+    this.app.use("/vanguard/v1/accounts", accountRoutes);
+    this.app.use("/vanguard/v1/customers", customerRoutes);
+    this.app.use("/vanguard/v1/favorites", favoriteRoutes);
+    this.app.use("/vanguard/v1/products", productRoutes);
+    this.app.use("/vanguard/v1/transactions", transactionRoutes);
     this.app.use(errorHandler);
   }
 

@@ -12,17 +12,23 @@ export const validateJWT = async (req, res, next) => {
     token = token.replace(/^Bearer\s+/, "");
     const { uid } = jwt.verify(token, process.env.TOKEN_KEY);
 
-    const account = await Account.findById(uid);
+    const account = await Account.findById(uid).populate("customer_id");
 
     if (!account) {
       return res.status(401).json({
-        msg: "Account not registered in the database",
+        msg: "Account does not exist in the DB",
       });
     }
 
-    if (!account.status) {
+    if (account.status === "closed") {
       return res.status(401).json({
-        msg: "This account is deactivated",
+        msg: "This account was closed",
+      });
+    }
+
+    if (account.status === "deactivated") {
+      return res.status(401).json({
+        msg: "This account was deactivated",
       });
     }
 
