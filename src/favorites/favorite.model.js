@@ -4,12 +4,10 @@ const FavoriteSchema = new mongoose.Schema({
   account_no: {
     type: String,
     required: [true, "account number is required"],
-    unique: true,
   },
   favorite_account_no: {
     type: String,
     required: [true, "favorite account number is required"],
-    unique: true,
   },
   alias: {
     type: String,
