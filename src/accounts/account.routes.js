@@ -7,7 +7,7 @@ import {
   editAccountInfo,
   getAccountById,
   listAccounts,
-} from "./controllers/account.controller.js";
+} from "./account.controller.js";
 
 const router = Router();
 
