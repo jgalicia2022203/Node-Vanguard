@@ -12,6 +12,7 @@ import customerRoutes from "../src/customers/customer.routes.js";
 import favoriteRoutes from "../src/favorites/favorite.routes.js";
 import productRoutes from "../src/products-services/product-service.routes.js";
 import transactionRoutes from "../src/transactions/transaction.routes.js";
+import initializeData from "./initializeData.js";
 import { dbConnection } from "./mongo.js";
 
 class Server {
@@ -45,7 +46,9 @@ class Server {
   }
 
   async connectDB() {
-    await dbConnection();
+    await dbConnection().then(() => {
+      initializeData();
+    });
   }
 
   middlewares() {

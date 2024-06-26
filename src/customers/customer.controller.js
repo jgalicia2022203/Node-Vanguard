@@ -1,23 +1,6 @@
-import bcrypt from "bcryptjs";
-import { request, response } from "express";
-import Customer from "./customer.model.js";
-
-// List all customers with pagination
-export const listCustomers = async (req = request, res = response) => {
-  try {
-    const { limit = 10, from = 0 } = req.query;
-    const [total, customers] = await Promise.all([
-      Customer.countDocuments(),
-      Customer.find().skip(Number(from)).limit(Number(limit)),
-    ]);
-    res.status(200).json({ total, customers });
-  } catch (e) {
-    console.error(e);
-    res
-      .status(500)
-      .json({ msg: "An unexpected error occurred during customer list." });
-  }
-};
+import { v4 as uuidv4 } from "uuid";
+import Account from "../accounts/account.model.js";
+import Customer from "../customers/customer.model.js";
 
 // Get customer by ID
 export const getCustomerById = async (req, res) => {
@@ -48,13 +31,15 @@ export const createCustomer = async (req, res) => {
     password,
     work_name,
     monthly_income,
-    role,
   } = req.body;
 
   try {
+    // Generate unique account number
+    const account_no = uuidv4();
     const newCustomer = new Customer({
       name,
       username,
+      account_no,
       gov_id,
       address,
       cell_phone,
@@ -62,29 +47,35 @@ export const createCustomer = async (req, res) => {
       password,
       work_name,
       monthly_income,
-      role,
     });
 
     await newCustomer.save();
-    res
-      .status(201)
-      .json({ msg: "Customer created successfully", customer: newCustomer });
+
+    // Create new account for the customer
+    const newAccount = new Account({
+      customer_id: newCustomer._id,
+      account_no: newCustomer.account_no,
+    });
+
+    await newAccount.save();
+
+    res.status(201).json({
+      msg: "Customer and account created successfully",
+      customer: newCustomer,
+      account: newAccount,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: "Error creating the customer." });
+    res.status(500).json({ msg: "Error creating the customer and account." });
   }
 };
 
 // Edit customer information
 export const editCustomerInfo = async (req, res) => {
   const id = req.params.id;
-  const { password, ...rest } = req.body;
+  const { ...rest } = req.body;
 
   try {
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      rest.password = await bcrypt.hash(password, salt);
-    }
     const updatedCustomer = await Customer.findByIdAndUpdate(id, rest, {
       new: true,
       runValidators: true,
@@ -98,15 +89,3 @@ export const editCustomerInfo = async (req, res) => {
   }
 };
 
-// Delete customer
-export const deleteCustomer = async (req, res) => {
-  const id = req.params.id;
-
-  try {
-    await Customer.findByIdAndDelete(id);
-    res.status(200).json({ msg: "Customer deleted successfully." });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Error deleting the customer." });
-  }
-};
