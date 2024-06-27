@@ -69,7 +69,7 @@ class Server {
     this.app.use("/vanguard/v1/transactions", transactionRoutes);
     this.app.use(errorHandler);
   }
-
+ 
   listen() {
     this.app.listen(this.port, () => {
       console.log("Server running on port ", this.port);

@@ -1,96 +1,84 @@
-import { request, response } from "express";
-import Account from "./account.model.js";
+import Account from "../accounts/account.model.js";
+import Transaction from "../transactions/transaction.model.js";
 
-// List all accounts with pagination
-export const listAccounts = async (req = request, res = response) => {
-  try {
-    const { limit = 10, from = 0 } = req.query;
-    const [total, accounts] = await Promise.all([
-      Account.countDocuments(),
-      Account.find().skip(Number(from)).limit(Number(limit)),
-    ]);
-    res.status(200).json({ total, accounts });
-  } catch (e) {
-    console.error(e);
-    res
-      .status(500)
-      .json({ msg: "An unexpected error occurred during account list." });
-  }
-};
-
-// Get account by ID
+// Obtener información de una cuenta por ID
 export const getAccountById = async (req, res) => {
-  const id = req.params.id;
+  const { id } = req.params;
+
   try {
     const account = await Account.findById(id).populate("customer_id");
     if (!account) {
       return res.status(404).json({ msg: "Account not found." });
     }
-    res.status(200).json({ account });
+
+    // Obtener los últimos 5 movimientos de la cuenta
+    const transactions = await Transaction.find({
+      account_no: account.account_no,
+    })
+      .sort({ date: -1 })
+      .limit(5);
+
+    res.status(200).json({ account, transactions });
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ msg: "An unexpected error occurred during fetching account." });
+    console.error("Error in getAccountById:", error);
+    res.status(500).json({ msg: "An unexpected error occurred." });
   }
 };
 
-// Create a new account
-export const createAccount = async (req, res) => {
-  const { customer_id, account_no, balance, status } = req.body;
-
+export const listAccountsByTransactions = async (req, res) => {
   try {
-    const newAccount = new Account({
-      customer_id,
-      account_no,
-      balance,
-      status,
-    });
+    const accounts = await Transaction.aggregate([
+      { $group: { _id: "$account_no", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+    ]);
 
-    await newAccount.save();
-    res
-      .status(201)
-      .json({ msg: "Account created successfully", account: newAccount });
+    res.status(200).json(accounts);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: "Error creating the account." });
+    res.status(500).json({ msg: "An unexpected error occurred." });
   }
 };
 
-// Edit account information
-export const editAccountInfo = async (req, res) => {
-  const id = req.params.id;
-  const { balance, status, ...rest } = req.body;
+// Desactivar una cuenta (cambiar el estado a "deactivated")
+export const deactivateAccount = async (req, res) => {
+  const { id } = req.params;
 
   try {
-    const updatedAccount = await Account.findByIdAndUpdate(
+    const account = await Account.findByIdAndUpdate(
       id,
-      { balance, status, ...rest },
-      {
-        new: true,
-        runValidators: true,
-      }
+      { status: "deactivated" },
+      { new: true }
     );
-    res
-      .status(200)
-      .json({
-        msg: `Account ${updatedAccount.account_no} successfully updated!`,
-      });
+
+    if (!account) {
+      return res.status(404).json({ msg: "Account not found." });
+    }
+
+    res.status(200).json({ msg: "Account deactivated successfully.", account });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Error updating the account." });
+    console.error("Error in deactivateAccount:", error);
+    res.status(500).json({ msg: "An unexpected error occurred." });
   }
 };
 
-// Delete account
-export const deleteAccount = async (req, res) => {
-  const id = req.params.id;
+// Cerrar una cuenta (cambiar el estado a "closed")
+export const closeAccount = async (req, res) => {
+  const { id } = req.params;
 
   try {
-    await Account.findByIdAndDelete(id);
-    res.status(200).json({ msg: "Account deleted successfully." });
+    const account = await Account.findByIdAndUpdate(
+      id,
+      { status: "closed" },
+      { new: true }
+    );
+
+    if (!account) {
+      return res.status(404).json({ msg: "Account not found." });
+    }
+
+    res.status(200).json({ msg: "Account closed successfully.", account });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Error deleting the account." });
+    console.error("Error in closeAccount:", error);
+    res.status(500).json({ msg: "An unexpected error occurred." });
   }
 };
