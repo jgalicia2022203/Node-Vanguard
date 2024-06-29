@@ -1,20 +1,23 @@
-import { Router } from "express";
-import { validateFields } from "../common/middlewares/validate-fields.js";
-import { validateJWT } from "../common/middlewares/validate-jwt.js";
+import express from "express";
+import { addItemToCart } from "../cart/cart.controller.js";
 import {
   createProductService,
-  deleteProductService,
-  editProductServiceInfo,
+  discontinueProductService,
   getProductServiceById,
   listProductServices,
+  updateProductService,
 } from "./product-service.controller.js";
 
-const router = Router();
+const router = express.Router();
 
-router.get("/", [validateJWT, validateFields], listProductServices);
-router.get("/:id", [validateJWT, validateFields], getProductServiceById);
-router.post("/", [validateJWT, validateFields], createProductService);
-router.put("/:id", [validateJWT, validateFields], editProductServiceInfo);
-router.delete("/:id", [validateJWT, validateFields], deleteProductService);
+// Productos y Servicios
+router.get("/", listProductServices);
+router.get("/:id", getProductServiceById);
+router.post("/", createProductService);
+router.put("/:id", updateProductService);
+router.patch("/discontinue/:id", discontinueProductService);
+
+// Carrito de Compras
+router.post("/cart", addItemToCart);
 
 export default router;
