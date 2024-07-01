@@ -12,9 +12,37 @@ import {
 const router = Router();
 
 router.get("/", [validateJWT, validateFields], listFavorites);
+
 router.get("/:id", [validateJWT, validateFields], getFavoriteById);
-router.post("/", [validateJWT, validateFields], createFavorite);
-router.put("/:id", [validateJWT, validateFields], editFavoriteInfo);
+
+router.post(
+  "/",
+  [
+    validateJWT,
+    check("account_no", "The account_no is required").not().isEmpty(),
+    check("favorite_account_no", "The favorite_account_no is required")
+      .not()
+      .isEmpty(),
+    check("alias", "The alias is required").not().isEmpty(),
+    validateFields,
+  ],
+  createFavorite
+);
+
+router.put(
+  "/:id",
+  [
+    validateJWT,
+    check("favorite_account_no", "The favorite_account_no is required")
+      .optional()
+      .not()
+      .isEmpty(),
+    check("alias", "The alias is required").optional().not().isEmpty(),
+    validateFields,
+  ],
+  editFavoriteInfo
+);
+
 router.delete("/:id", [validateJWT, validateFields], deleteFavorite);
 
 export default router;
