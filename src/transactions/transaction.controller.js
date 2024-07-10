@@ -31,7 +31,7 @@ export const deposit = async (req, res) => {
     });
     await newTransaction.save();
 
-    account.balance += amount;
+    account.balance += Number(amount);
     await account.save();
 
     res.status(201).json(newTransaction);
@@ -153,7 +153,7 @@ export const requestCredit = async (req, res) => {
     });
     await newTransaction.save();
 
-    account.balance += amount;
+    account.balance += Number(amount);
     await account.save();
 
     res.status(201).json(newTransaction);

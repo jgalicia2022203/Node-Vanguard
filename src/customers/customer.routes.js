@@ -2,7 +2,6 @@ import { Router } from "express";
 import { check } from "express-validator";
 import { govIdExists } from "../common/helpers/gov-id-exists.js";
 import { usernameExists } from "../common/helpers/username-exists.js";
-import { validateEditCustomer } from "../common/middlewares/validate-edit-customer.js";
 import { validateFields } from "../common/middlewares/validate-fields.js";
 import { validateJWT } from "../common/middlewares/validate-jwt.js";
 import {
@@ -80,7 +79,7 @@ router.put(
     )
       .optional()
       .isFloat({ min: 100 }),
-    validateEditCustomer,
+
     validateFields,
   ],
   editCustomerInfo

@@ -72,16 +72,25 @@ export const createCustomer = async (req, res) => {
   }
 };
 
-// Edit customer information
 export const editCustomerInfo = async (req, res) => {
   const id = req.params.id;
-  const { ...rest } = req.body;
+  const { address, ...rest } = req.body;
 
   try {
-    const updatedCustomer = await Customer.findByIdAndUpdate(id, rest, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedCustomer = await Customer.findByIdAndUpdate(
+      id,
+      {
+        ...rest,
+        "address.street": address.street,
+        "address.city": address.city,
+        "address.state": address.state,
+        "address.zip": address.zip,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     res
       .status(200)
       .json({ msg: `${updatedCustomer.username} successfully updated!` });
