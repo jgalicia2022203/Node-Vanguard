@@ -14,6 +14,10 @@ const ProductServiceSchema = new mongoose.Schema({
     type: Number,
     required: [true, "price is required"],
   },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
   type: {
     type: String,
     enum: ["product", "service"],

@@ -2,10 +2,11 @@ import ProductService from "./product-service.model.js";
 
 export const listProductServices = async (req, res) => {
   try {
-    const productsAndServices = await ProductService.find();
-    res.status(200).json(productsAndServices);
+    const products = await ProductService.find();
+    res.status(200).json({ products });
   } catch (error) {
-    res.status(500).json({ error: "Error fetching products and services" });
+    console.error("Error fetching products:", error);
+    res.status(500).json({ error: "Error fetching products" });
   }
 };
 
@@ -21,41 +22,48 @@ export const getProductServiceById = async (req, res) => {
 };
 
 export const createProductService = async (req, res) => {
+  const { name, description, price, imageUrl, type } = req.body;
   try {
-    const productService = new ProductService(req.body);
-    await productService.save();
-    res.status(201).json(productService);
+    const newProduct = new ProductService({
+      name,
+      description,
+      price,
+      imageUrl,
+      type,
+    });
+    await newProduct.save();
+    res.status(201).json(newProduct);
   } catch (error) {
-    res.status(500).json({ error: "Error creating product or service" });
+    console.error("Error adding product:", error);
+    res.status(500).json({ error: "Error adding product" });
   }
 };
 
 export const updateProductService = async (req, res) => {
+  const id = req.params.id;
+  const { ...rest } = req.body;
+
   try {
-    const productService = await ProductService.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (!productService)
-      return res.status(404).json({ error: "Product or service not found" });
-    res.status(200).json(productService);
+    const updatedProduct = await ProductService.findByIdAndUpdate(id, rest, {
+      new: true,
+      runValidators: true,
+    });
+    res
+      .status(200)
+      .json({ msg: `${updatedProduct.name} successfully updated!` });
   } catch (error) {
-    res.status(500).json({ error: "Error updating product or service" });
+    console.error("Error updating the product:", error);
+    res.status(500).json({ msg: "Error updating the product." });
   }
 };
 
-export const discontinueProductService = async (req, res) => {
+export const deleteProductService = async (req, res) => {
+  const id = req.params.id;
   try {
-    const productService = await ProductService.findByIdAndUpdate(
-      req.params.id,
-      { status: "discontinued" },
-      { new: true }
-    );
-    if (!productService)
-      return res.status(404).json({ error: "Product or service not found" });
-    res.status(200).json(productService);
+    await ProductService.findByIdAndDelete(id);
+    res.status(200).json({ msg: "Product deleted successfully!" });
   } catch (error) {
-    res.status(500).json({ error: "Error discontinuing product or service" });
+    console.error("Error deleting product:", error);
+    res.status(500).json({ msg: "Error deleting the product." });
   }
 };

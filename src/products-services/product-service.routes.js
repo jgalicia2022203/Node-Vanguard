@@ -5,7 +5,7 @@ import { validateFields } from "../common/middlewares/validate-fields.js";
 import { validateJWT } from "../common/middlewares/validate-jwt.js";
 import {
   createProductService,
-  discontinueProductService,
+  deleteProductService,
   getProductServiceById,
   listProductServices,
   updateProductService,
@@ -25,6 +25,7 @@ router.post(
     check("name", "The name is required").not().isEmpty(),
     check("description", "The description is required").not().isEmpty(),
     check("price", "The price is required").not().isEmpty(),
+    check("imageUrl", "The imageUrl is required").not().isEmpty(),
     check("type", "The type is required").not().isEmpty(),
     validateFields,
   ],
@@ -41,17 +42,14 @@ router.put(
       .not()
       .isEmpty(),
     check("price", "The price is required").optional().not().isEmpty(),
+    check("imageUrl", "The imageUrl is required").optional().not().isEmpty(),
     check("type", "The type is required").optional().not().isEmpty(),
     validateFields,
   ],
   updateProductService
 );
 
-router.patch(
-  "/discontinue/:id",
-  [validateJWT, validateFields],
-  discontinueProductService
-);
+router.delete("/:id", [validateJWT, validateFields], deleteProductService);
 
 // Carrito de Compras
 router.post(
