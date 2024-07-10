@@ -42,6 +42,7 @@ router.post(
       "monthly_income",
       "The monthly_income is required and must be at least 100"
     ).isFloat({ min: 100 }),
+    check("role", "The role is required").not().isEmpty(),
     validateFields,
   ],
   createCustomer

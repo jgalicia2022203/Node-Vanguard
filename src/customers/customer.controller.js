@@ -31,6 +31,7 @@ export const createCustomer = async (req, res) => {
     password,
     work_name,
     monthly_income,
+    role,
   } = req.body;
 
   try {
@@ -47,6 +48,7 @@ export const createCustomer = async (req, res) => {
       password,
       work_name,
       monthly_income,
+      role,
     });
 
     await newCustomer.save();
@@ -88,4 +90,3 @@ export const editCustomerInfo = async (req, res) => {
     res.status(500).json({ msg: "Error updating the customer." });
   }
 };
-

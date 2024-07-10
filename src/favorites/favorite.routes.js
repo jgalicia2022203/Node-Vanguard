@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { check } from "express-validator";
 import { validateFields } from "../common/middlewares/validate-fields.js";
 import { validateJWT } from "../common/middlewares/validate-jwt.js";
 import {

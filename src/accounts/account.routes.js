@@ -6,9 +6,12 @@ import {
   deactivateAccount,
   getAccountById,
   listAccountsByTransactions,
+  searchAccounts,
 } from "./account.controller.js";
 
 const router = Router();
+
+router.get("/search", [validateJWT, validateFields], searchAccounts);
 
 router.get("/:id", [validateJWT, validateFields], getAccountById);
 
