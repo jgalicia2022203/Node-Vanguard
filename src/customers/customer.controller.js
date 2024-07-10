@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
 import Account from "../accounts/account.model.js";
 import Customer from "../customers/customer.model.js";
@@ -75,6 +76,10 @@ export const createCustomer = async (req, res) => {
 export const editCustomerInfo = async (req, res) => {
   const id = req.params.id;
   const { address, ...rest } = req.body;
+
+  if (rest.password) {
+    rest.password = await bcrypt.hash(rest.password, 10);
+  }
 
   try {
     const updatedCustomer = await Customer.findByIdAndUpdate(
