@@ -1,6 +1,10 @@
 import express from "express";
 import { check } from "express-validator";
-import { addItemToCart } from "../cart/cart.controller.js";
+import {
+  addItemToCart,
+  getCartItems,
+  purchase,
+} from "../cart/cart.controller.js";
 import { validateFields } from "../common/middlewares/validate-fields.js";
 import { validateJWT } from "../common/middlewares/validate-jwt.js";
 import {
@@ -56,10 +60,26 @@ router.post(
   "/cart",
   [
     validateJWT,
-    check("account_no", "The account_no is required").not().isEmpty(),
+    check("customer_id", "The customer_id is required").not().isEmpty(),
+    check("product_service_id", "The product_service_id is required")
+      .not()
+      .isEmpty(),
+    check("quantity", "The quantity is required").not().isEmpty(),
     validateFields,
   ],
   addItemToCart
+);
+
+router.get("/cart/:id", [validateJWT, validateFields], getCartItems);
+
+router.post(
+  "/purchase",
+  [
+    validateJWT,
+    check("account_no", "The account_no is required").not().isEmpty(),
+    validateFields,
+  ],
+  purchase
 );
 
 export default router;

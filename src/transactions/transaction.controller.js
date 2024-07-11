@@ -1,5 +1,4 @@
 import Account from "../accounts/account.model.js";
-import Cart from "../cart/cart.model.js";
 import Transaction from "./transaction.model.js";
 
 export const getTransactionHistory = async (req, res) => {
@@ -160,58 +159,5 @@ export const requestCredit = async (req, res) => {
   } catch (error) {
     console.error("Error requesting credit:", error);
     res.status(500).json({ error: "Error requesting credit" });
-  }
-};
-
-export const purchase = async (req, res) => {
-  try {
-    const { account_no } = req.body;
-
-    // Verificar si la cuenta existe
-    const account = await Account.findOne({ account_no });
-    if (!account) {
-      return res.status(404).json({ error: "Account not found" });
-    }
-
-    // Obtener el carrito del cliente
-    const cart = await Cart.findOne({
-      customer_id: account.customer_id,
-    }).populate("items.product_service_id");
-    if (!cart) {
-      return res.status(404).json({ error: "Cart not found" });
-    }
-
-    // Calcular el total de la compra
-    let totalAmount = 0;
-    for (const item of cart.items) {
-      totalAmount += item.quantity * item.product_service_id.price;
-    }
-
-    // Verificar si el saldo es suficiente
-    if (account.balance < totalAmount) {
-      return res.status(400).json({ error: "Insufficient balance" });
-    }
-
-    // Actualizar el saldo de la cuenta del cliente
-    account.balance -= totalAmount;
-    await account.save();
-
-    // Crear una transacción para cada producto en el carrito
-    const transactions = cart.items.map((item) => ({
-      account_no: account.account_no,
-      transaction_type: "Purchase",
-      amount: item.quantity * item.product_service_id.price,
-      description: `Purchased ${item.quantity} x ${item.product_service_id.name}`,
-    }));
-    await Transaction.insertMany(transactions);
-
-    // Limpiar el carrito después de la compra
-    cart.items = [];
-    await cart.save();
-
-    res.status(200).json({ message: "Purchase successful" });
-  } catch (error) {
-    console.error("Error in purchase:", error);
-    res.status(500).json({ error: "An unexpected error occurred" });
   }
 };

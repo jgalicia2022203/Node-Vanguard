@@ -4,6 +4,7 @@ import { validateJWT } from "../common/middlewares/validate-jwt.js";
 import {
   closeAccount,
   deactivateAccount,
+  getAccountByAccountNo,
   getAccountById,
   listAccountsByTransactions,
   searchAccounts,
@@ -24,5 +25,7 @@ router.patch(
 );
 
 router.patch("/close/:id", [validateJWT, validateFields], closeAccount);
+
+router.get("/by-account-no/:accountNo", [validateJWT], getAccountByAccountNo);
 
 export default router;

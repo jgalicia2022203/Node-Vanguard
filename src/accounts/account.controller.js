@@ -130,3 +130,24 @@ export const searchAccounts = async (req, res) => {
     res.status(500).json({ msg: "An unexpected error occurred." });
   }
 };
+
+export const getAccountByAccountNo = async (req, res) => {
+  const { accountNo } = req.params;
+  try {
+    const account = await Account.findOne({ account_no: accountNo }).populate(
+      "customer_id"
+    );
+    if (!account) {
+      return res.status(404).json({ error: "Account not found" });
+    }
+
+    const transactions = await Transaction.find({ account_no: accountNo })
+      .sort({ date: -1 })
+      .limit(5);
+
+    res.status(200).json({ account, transactions });
+  } catch (error) {
+    console.error("Error fetching account:", error);
+    res.status(500).json({ error: "Error fetching account" });
+  }
+};

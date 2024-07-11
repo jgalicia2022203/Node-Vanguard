@@ -5,7 +5,6 @@ import { validateJWT } from "../common/middlewares/validate-jwt.js";
 import {
   deposit,
   getTransactionHistory,
-  purchase,
   requestCredit,
   transfer,
   withdraw,
@@ -63,14 +62,4 @@ router.post(
   ],
   requestCredit
 );
-router.post(
-  "/purchase",
-  [
-    validateJWT,
-    check("account_no", "The account_no is required").not().isEmpty(),
-    validateFields,
-  ],
-  purchase
-);
-
 export default router;
